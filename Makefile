@@ -1,13 +1,18 @@
 PREFIX ?= $(HOME)/.local
-VERSION ?= 0.1.0-dev
+VERSION ?= 0.2.0-dev
 
-.PHONY: build check install
+.PHONY: build test check fmt install release
 build:
-	go build -trimpath -ldflags '-X main.version=$(VERSION)' -o dist/hycli ./cmd/hycli
-check:
-	@test -z "$$(gofmt -l cmd internal)"
+	go build -trimpath -ldflags '-X github.com/yy003x/hycli/internal/buildinfo.Version=$(VERSION)' -o build/hycli ./cmd/hycli
+test:
 	go test ./...
+check:
+	test -z "$$(gofmt -l cmd internal)"
 	go vet ./...
+	go test -race ./...
+fmt:
+	gofmt -w cmd internal
 install: build
-	install -d "$(PREFIX)/bin"
-	install -m 755 dist/hycli "$(PREFIX)/bin/hycli"
+	PREFIX='$(PREFIX)' sh scripts/install.sh
+release:
+	VERSION='$(VERSION)' sh scripts/release.sh

@@ -53,14 +53,20 @@ func command(home string, args ...string) *exec.Cmd {
 func TestArgvAndNoShellExpansion(t *testing.T) {
 	home := setup(t, map[string]any{"command": "/usr/bin/printf", "args": []string{"<%s>\n"}, "interactiveArgs": []string{"interactive"}, "execArgs": []string{"exec"}})
 	for _, mode := range []string{"interactive", "exec"} {
-		args := []string{"tool", "--", "a b", "$(echo wrong)", "--help"}
-		if mode == "exec" {
-			args = append([]string{"exec"}, args...)
-		}
-		out, err := command(home, args...).CombinedOutput()
-		want := "<" + mode + ">\n<a b>\n<$(echo wrong)>\n<--help>\n"
-		if err != nil || string(out) != want {
-			t.Fatalf("%v: %s; want %s", err, out, want)
+		for _, separator := range []bool{false, true} {
+			args := []string{"tool"}
+			if separator {
+				args = append(args, "--")
+			}
+			args = append(args, "--help", "--version", "--dry-run", "--show-args", "--json", "a b", "$(echo wrong)", "中文", "--")
+			if mode == "exec" {
+				args = append([]string{"exec"}, args...)
+			}
+			out, err := command(home, args...).CombinedOutput()
+			want := "<" + mode + ">\n<--help>\n<--version>\n<--dry-run>\n<--show-args>\n<--json>\n<a b>\n<$(echo wrong)>\n<中文>\n<-->\n"
+			if err != nil || string(out) != want {
+				t.Fatalf("mode=%s separator=%t: %v: %s; want %s", mode, separator, err, out, want)
+			}
 		}
 	}
 }

@@ -24,7 +24,8 @@ def main():
         result = run("doctor", "code")
         assert result.returncode == 0, result.stderr
         result = run("code", "--version")
-        assert result.returncode == 0 and result.stdout.strip() == "0.1.0", result.stderr
+        version = subprocess.run([agent, "--version"], env=env, text=True, capture_output=True, check=True).stdout.strip()
+        assert result.returncode == 0 and result.stdout.strip() == version, result.stderr
         result = run("exec", "code", "--", "--help")
         # print 模式把管理提示写到 stderr，stdout 保留给任务结果。
         assert result.returncode == 0 and "hycode - AI coding assistant" in result.stdout + result.stderr, result.stderr

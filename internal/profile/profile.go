@@ -26,12 +26,18 @@ var idPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
 var envPattern = regexp.MustCompile(`\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}`)
 var envKeyPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
+// 固定命令名和已移除的入口保持保留，避免命令冲突或旧调用意外启动同名工具。
+var reservedIDs = map[string]bool{"exec": true, "help": true, "profile": true, "doctor": true, "preview": true}
+
 func ValidID(id string) bool { return idPattern.MatchString(id) }
 
 func Load(dir, id string) (Profile, error) {
 	var p Profile
 	if !ValidID(id) {
 		return p, fmt.Errorf("invalid profile ID %q", id)
+	}
+	if reservedIDs[id] {
+		return p, fmt.Errorf("profile ID %q is a reserved hycli command name", id)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, id+".json"))
 	if err != nil {

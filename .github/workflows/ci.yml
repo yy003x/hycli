@@ -11,5 +11,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-          cache: false
-      - run: make check build
+          cache: true
+      - run: make check
+      - run: make build
+      - run: sh scripts/check-install.sh
