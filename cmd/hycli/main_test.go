@@ -20,7 +20,12 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	testBinary = filepath.Join(dir, "hycli")
-	if output, err := exec.Command("go", "build", "-o", testBinary, ".").CombinedOutput(); err != nil {
+	buildArgs := []string{"build", "-o", testBinary}
+	if os.Getenv("HYCLI_TEST_RACE") == "1" {
+		buildArgs = append(buildArgs, "-race")
+	}
+	buildArgs = append(buildArgs, ".")
+	if output, err := exec.Command("go", buildArgs...).CombinedOutput(); err != nil {
 		panic(string(output) + err.Error())
 	}
 	code := m.Run()

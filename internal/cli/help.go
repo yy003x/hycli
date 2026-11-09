@@ -7,6 +7,7 @@ Usage:
   hycli exec [--dry-run [--show-args]] <id> [--] [tool arguments/prompt...]
   hycli profile <command>
   hycli doctor [--json] [id]
+  hycli session <command>
   hycli --help
   hycli --version
 
@@ -14,6 +15,7 @@ Commands:
   exec       Launch a profile in noninteractive mode
   profile    List, show, or check profile configurations
   doctor     Check local launch readiness without starting a tool
+  session    Control a Pi RPC or Codex App Server session
 
 Options:
   --dry-run    Print launch details as JSON without starting the tool
@@ -24,7 +26,7 @@ Options:
 Use hycli <command> --help for command-specific help.
 Launch options must precede the profile ID. All arguments after it pass through.
 Profiles: ${HYCLI_HOME:-~/.hycli}/configs/<id>.json
-No LLM API, agent loop, database, daemon, or server is embedded.
+Session mode uses one local worker per agent; model calls and tools stay in the agent.
 `
 
 const execUsage = `Usage: hycli exec [--dry-run [--show-args]] <id> [--] [tool arguments/prompt...]

@@ -15,6 +15,7 @@ const (
 	actionProfileShow  action = "profile-show"
 	actionProfileCheck action = "profile-check"
 	actionDoctor       action = "doctor"
+	actionSession      action = "session"
 )
 
 // invocation 只记录解析结果，不读取配置或启动进程。
@@ -27,6 +28,10 @@ type invocation struct {
 	showArgs       bool
 	jsonOutput     bool
 	help           string
+	sessionCommand string
+	cwd            string
+	wait           bool
+	after          uint64
 }
 
 func parse(args []string) (invocation, error) {
@@ -45,6 +50,8 @@ func parse(args []string) (invocation, error) {
 		return parseProfiles(args[1:])
 	case "doctor":
 		return parseDoctor(args[1:])
+	case "session":
+		return parseSession(args[1:])
 	case "help":
 		return invocation{}, fmt.Errorf("help is no longer a command; use hycli --help")
 	case "preview":

@@ -55,6 +55,8 @@ func Run(args []string, stdout io.Writer) error {
 		return checkProfiles(dir, call.id, stdout)
 	case actionDoctor:
 		return doctor(dir, call.id, call.jsonOutput, stdout)
+	case actionSession:
+		return runSession(filepath.Dir(dir), call, stdout)
 	default:
 		return fmt.Errorf("unsupported command action %q", call.action)
 	}

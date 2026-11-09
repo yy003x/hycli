@@ -1,4 +1,5 @@
 {
   "command": "codex",
-  "execArgs": ["exec"]
+  "execArgs": ["exec"],
+  "session": {"adapter": "codex", "args": []}
 }

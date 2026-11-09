@@ -1,4 +1,5 @@
 {
   "command": "pi",
-  "execArgs": ["--print"]
+  "execArgs": ["--print"],
+  "session": {"adapter": "pi", "args": []}
 }

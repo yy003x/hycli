@@ -1,4 +1,4 @@
-// Package profile 只解析外部进程配置，不理解模型、工具或会话。
+// Package profile 只解析外部进程配置，不实现模型、工具或会话运行逻辑。
 package profile
 
 import (
@@ -20,6 +20,13 @@ type Profile struct {
 	ExecArgs        *[]string         `json:"execArgs,omitempty"`
 	Env             map[string]string `json:"env,omitempty"`
 	Cwd             string            `json:"cwd,omitempty"`
+	Session         *Session          `json:"session,omitempty"`
+}
+
+// Session 使用独立启动参数，避免 TUI 专属选项污染协议进程。
+type Session struct {
+	Adapter string   `json:"adapter"`
+	Args    []string `json:"args,omitempty"`
 }
 
 var idPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
@@ -27,7 +34,7 @@ var envPattern = regexp.MustCompile(`\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}`)
 var envKeyPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // 固定命令名和已移除的入口保持保留，避免命令冲突或旧调用意外启动同名工具。
-var reservedIDs = map[string]bool{"exec": true, "help": true, "profile": true, "doctor": true, "preview": true}
+var reservedIDs = map[string]bool{"exec": true, "help": true, "profile": true, "doctor": true, "preview": true, "session": true}
 
 func ValidID(id string) bool { return idPattern.MatchString(id) }
 
@@ -62,6 +69,12 @@ func Load(dir, id string) (Profile, error) {
 	allArgs := append(append([]string{}, p.Args...), p.InteractiveArgs...)
 	if p.ExecArgs != nil {
 		allArgs = append(allArgs, (*p.ExecArgs)...)
+	}
+	if p.Session != nil {
+		if p.Session.Adapter != "pi" && p.Session.Adapter != "codex" {
+			return p, fmt.Errorf("profile %s: session.adapter must be pi or codex", id)
+		}
+		allArgs = append(allArgs, p.Session.Args...)
 	}
 	for _, arg := range allArgs {
 		if strings.ContainsRune(arg, 0) {
