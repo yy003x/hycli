@@ -1,0 +1,4 @@
+{
+  "command": "claude",
+  "execArgs": ["--print"]
+}
